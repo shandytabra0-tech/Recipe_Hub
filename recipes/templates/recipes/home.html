@@ -1,0 +1,698 @@
+{% extends 'recipes/base.html' %}
+
+{% block title %}Home - Recipe Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-banner {
+        position: relative;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        min-height: 100vh;
+        overflow: hidden;
+    }
+    
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 2rem;
+    }
+    
+    .gradient-text {
+        background: linear-gradient(45deg, #fff, #f8f9fa, #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    .subtitle {
+        color: rgba(255,255,255,0.9);
+        font-weight: 300;
+        font-size: 2.5rem;
+    }
+    
+    .hero-description {
+        font-size: 1.3rem;
+        color: rgba(255,255,255,0.8);
+        line-height: 1.6;
+    }
+    
+    .btn-hero {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-hero:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .hero-stats {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .hero-image {
+        position: relative;
+        height: 600px;
+    }
+    
+    .floating-card {
+        position: absolute;
+        background: rgba(255,255,255,0.95);
+        border-radius: 20px;
+        padding: 1rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .card-1 {
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+    
+    .card-2 {
+        top: 40%;
+        left: 0;
+        animation-delay: 2s;
+    }
+    
+    .card-3 {
+        bottom: 10%;
+        right: 20%;
+        animation-delay: 4s;
+    }
+    
+    .recipe-preview {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 200px;
+    }
+    
+    .recipe-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    }
+    
+    .recipe-img.bg-2 {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    }
+    
+    .recipe-img.bg-3 {
+        background: linear-gradient(45deg, #f093fb, #f5576c);
+    }
+    
+    .recipe-info h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .rating {
+        font-size: 0.8rem;
+    }
+    
+    .categories-section {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+    }
+    
+    .section-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1.2rem;
+        color: rgba(255,255,255,0.7);
+    }
+    
+    .category-card {
+        display: block;
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 2rem 1rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .category-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255,255,255,0.2);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        text-decoration: none;
+    }
+    
+    .category-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .category-name {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .recipe-count {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.9rem;
+    }
+    
+    @keyframes shimmer {
+        0%, 100% { background-position: -200% 0; }
+        50% { background-position: 200% 0; }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(1deg); }
+        66% { transform: translateY(-10px) rotate(-1deg); }
+    }
+    
+    .search-section {
+        background: rgba(255,255,255,0.03);
+        backdrop-filter: blur(10px);
+    }
+    
+    .search-wrapper {
+        background: rgba(255,255,255,0.1);
+        border-radius: 25px;
+        padding: 3rem;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(15px);
+    }
+    
+    .search-title {
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+    }
+    
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 1.5rem;
+        color: rgba(255,255,255,0.6);
+        font-size: 1.2rem;
+        z-index: 3;
+    }
+    
+    .search-input {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 50px;
+        padding: 1rem 1rem 1rem 4rem;
+        color: white;
+        font-size: 1.1rem;
+        flex: 1;
+        margin-right: 1rem;
+    }
+    
+    .search-input::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+    
+    .search-input:focus {
+        background: rgba(255,255,255,0.15);
+        border-color: #667eea;
+        box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .btn-search {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 50px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-search:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .filter-wrapper {
+        text-align: center;
+    }
+    
+    .filter-label {
+        color: rgba(255,255,255,0.8);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 1rem;
+    }
+    
+    .category-select {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 15px;
+        color: white;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    .category-select:focus {
+        background: rgba(255,255,255,0.15);
+        border-color: #667eea;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .category-select option {
+        background: #333;
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.8rem;
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+        }
+        
+        .floating-card {
+            display: none;
+        }
+        
+        .search-wrapper {
+            padding: 2rem 1.5rem;
+        }
+        
+        .search-input-wrapper {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .search-input {
+            margin-right: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title mb-4">
+                        <span class="gradient-text">Recipe Hub</span>
+                        <br>
+                        <span class="subtitle">Where Flavors Come Alive</span>
+                    </h1>
+                    <p class="hero-description mb-5">Join thousands of food lovers sharing their culinary masterpieces. Discover, create, and savor the world's most delicious recipes.</p>
+                    
+                    <div class="hero-buttons mb-5">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'submit_recipe' %}" class="btn btn-hero btn-primary me-3">
+                                <i class="bi bi-plus-circle"></i> Share Your Recipe
+                            </a>
+                        {% else %}
+                            <a href="{% url 'register' %}" class="btn btn-hero btn-primary me-3">
+                                <i class="bi bi-person-plus"></i> Join Community
+                            </a>
+                        {% endif %}
+                        <a href="#explore" class="btn btn-hero btn-outline-light">
+                            <i class="bi bi-compass"></i> Explore Recipes
+                        </a>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="hero-stats">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="stat-number">{{ total_recipes|default:"500+" }}</h3>
+                                    <p class="stat-label">Recipes</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="stat-number">{{ total_users|default:"1K+" }}</h3>
+                                    <p class="stat-label">Chefs</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="stat-number">15</h3>
+                                    <p class="stat-label">Categories</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image">
+                    <div class="floating-card card-1">
+                        <div class="recipe-preview">
+                            <div class="recipe-img"></div>
+                            <div class="recipe-info">
+                                <h6>🍝 Spaghetti Carbonara</h6>
+                                <div class="rating">⭐⭐⭐⭐⭐</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-2">
+                        <div class="recipe-preview">
+                            <div class="recipe-img bg-2"></div>
+                            <div class="recipe-info">
+                                <h6>🍰 Chocolate Cake</h6>
+                                <div class="rating">⭐⭐⭐⭐⭐</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-3">
+                        <div class="recipe-preview">
+                            <div class="recipe-img bg-3"></div>
+                            <div class="recipe-info">
+                                <h6>🥗 Caesar Salad</h6>
+                                <div class="rating">⭐⭐⭐⭐☆</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Categories -->
+<section class="categories-section py-5" id="explore">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Explore by Category</h2>
+            <p class="section-subtitle">Find your perfect recipe from our diverse collection</p>
+        </div>
+        <div class="row g-4">
+            {% for category in categories|slice:":8" %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="?category={{ category.id }}" class="category-card">
+                    <div class="category-icon">{{ category.name|slice:":2" }}</div>
+                    <h6 class="category-name">{{ category.name|slice:"2:" }}</h6>
+                    <span class="recipe-count">{{ category.recipes.count }} recipes</span>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+
+    <!-- Search and Filter Section -->
+    <section class="search-section py-5" id="recipes">
+        <div class="container">
+            <div class="search-wrapper">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 mb-4 mb-lg-0">
+                        <h3 class="search-title mb-3">Find Your Perfect Recipe</h3>
+                        <form method="get" action="{% url 'home' %}" class="search-form">
+                            <div class="search-input-wrapper">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" class="form-control search-input" name="search" placeholder="Search pasta, desserts, chicken..." value="{{ search_query }}">
+                                <button class="btn btn-search" type="submit">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <div class="filter-wrapper">
+                                    <label class="filter-label">Filter Options</label>
+                                    <form method="get" action="{% url 'home' %}" class="mb-3">
+                                        {% if search_query %}
+                                        <input type="hidden" name="search" value="{{ search_query }}">
+                                        {% endif %}
+                                        {% if selected_category %}
+                                        <input type="hidden" name="category" value="{{ selected_category }}">
+                                        {% endif %}
+                                        <select name="user_filter" class="form-select category-select mb-2" onchange="this.form.submit()">
+                                            <option value="">🌍 All Recipes</option>
+                                            {% if user.is_authenticated %}
+                                            <option value="my_recipes" {% if user_filter == 'my_recipes' %}selected{% endif %}>
+                                                👨🍳 My Recipes Only
+                                            </option>
+                                            {% endif %}
+                                        </select>
+                                    </form>
+                                    
+                                    <form method="get" action="{% url 'home' %}">
+                                        {% if search_query %}
+                                        <input type="hidden" name="search" value="{{ search_query }}">
+                                        {% endif %}
+                                        {% if user_filter %}
+                                        <input type="hidden" name="user_filter" value="{{ user_filter }}">
+                                        {% endif %}
+                                        <select name="category" class="form-select category-select" onchange="this.form.submit()">
+                                            <option value="">✨ All Categories</option>
+                                            {% for category in categories %}
+                                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                                {{ category.name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Debug Info (remove in production) -->
+    {% if user.is_authenticated %}
+    <div class="alert alert-info mb-3">
+        <small>
+            <strong>Debug:</strong> Logged in as {{ user.username }} | 
+            Filter: {{ user_filter|default:"All Recipes" }} | 
+            Total recipes found: {{ page_obj.paginator.count }}
+        </small>
+    </div>
+    {% endif %}
+    
+    <!-- Recipe Cards -->
+    {% if page_obj %}
+    <div class="row g-4 mt-2">
+        {% for recipe in page_obj %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card recipe-card">
+                <div class="position-relative overflow-hidden">
+                    {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" class="card-img-top recipe-image" alt="{{ recipe.title }}">
+                    {% else %}
+                    <div class="card-img-top recipe-image d-flex align-items-center justify-content-center" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                        <i class="bi bi-image text-white" style="font-size: 3rem; opacity: 0.7;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute top-0 end-0 m-3">
+                        {% if recipe.category %}
+                        <span class="badge category-badge" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white;">
+                            {{ recipe.category.name }}
+                        </span>
+                        {% endif %}
+                        {% if recipe.author.is_staff %}
+                        <span class="badge mt-2 d-block" style="background: linear-gradient(45deg, #ffd700, #ffed4e); color: #333;">
+                            <i class="bi bi-star-fill"></i> Chef's Special
+                        </span>
+                        {% endif %}
+                        {% if user.is_authenticated and recipe.author == user %}
+                            {% if recipe.status == 'pending' %}
+                            <span class="badge bg-warning text-dark mt-2 d-block">
+                                <i class="bi bi-clock"></i> Pending Review
+                            </span>
+                            {% elif recipe.status == 'approved' %}
+                            <span class="badge bg-success mt-2 d-block">
+                                <i class="bi bi-check-circle"></i> Approved
+                            </span>
+                            {% elif recipe.status == 'rejected' %}
+                            <span class="badge bg-danger mt-2 d-block">
+                                <i class="bi bi-x-circle"></i> Rejected
+                            </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">🍽️ {{ recipe.title }}</h5>
+                    <p class="card-text text-muted mb-3">{{ recipe.description|truncatewords:15 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex gap-2">
+                            <span class="badge category-badge" style="background: linear-gradient(45deg, #4ecdc4, #44a08d); color: white;">
+                                <i class="bi bi-clock"></i> {{ recipe.prep_time }}m
+                            </span>
+                            <span class="badge category-badge" style="background: linear-gradient(45deg, #f093fb, #f5576c); color: white;">
+                                <i class="bi bi-fire"></i> {{ recipe.cook_time }}m
+                            </span>
+                        </div>
+                        {% if recipe.average_rating > 0 %}
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= recipe.average_rating|floatformat:0 %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ms-1">({{ recipe.average_rating|floatformat:1 }})</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> View Recipe
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer glass-effect border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                            <i class="bi bi-person-fill text-white" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <small class="text-muted">
+                            <a href="{% url 'user_profile' recipe.author.username %}" class="text-decoration-none">
+                                <strong {% if recipe.author.is_staff %}style="color: #ffd700;"{% endif %}>
+                                    {% if recipe.author.is_staff %}👑 {% endif %}{{ recipe.author.username }}
+                                </strong>
+                            </a> • {{ recipe.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}">First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}">Last</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <div class="glass-effect rounded-4 p-5 mx-auto" style="max-width: 500px;">
+            <div class="mb-4">
+                <i class="bi bi-search" style="font-size: 4rem; color: rgba(255,255,255,0.7);"></i>
+            </div>
+            <h4 class="text-white mb-3">🔍 No recipes found</h4>
+            <p class="text-white-50 mb-4">
+                {% if search_query or selected_category %}
+                    Try adjusting your search or filter criteria to discover more delicious recipes!
+                {% else %}
+                    Be the first culinary artist to share your amazing recipe with our community!
+                {% endif %}
+            </p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'submit_recipe' %}" class="btn btn-primary btn-lg pulse-animation">
+                <i class="bi bi-plus-circle"></i> Submit Your Recipe
+            </a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg pulse-animation">
+                <i class="bi bi-person-plus"></i> Join Our Community
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

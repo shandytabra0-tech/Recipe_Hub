@@ -1,0 +1,272 @@
+{% extends 'recipes/base.html' %}
+
+{% block title %}Settings - Recipe Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-nav {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .settings-nav .nav-link {
+        color: rgba(255,255,255,0.8);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .settings-nav .nav-link.active {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .settings-section {
+        background: rgba(255,255,255,0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #667eea;
+    }
+    
+    .avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header -->
+    <div class="glass-effect rounded-4 p-4 mb-4">
+        <h1 class="text-white mb-2">⚙️ Settings</h1>
+        <p class="text-white-50 mb-0">Manage your account and preferences</p>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+        <ul class="nav nav-pills" id="settingsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab">
+                    <i class="bi bi-person"></i> Profile
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="account-tab" data-bs-toggle="pill" data-bs-target="#account" type="button" role="tab">
+                    <i class="bi bi-gear"></i> Account
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="preferences-tab" data-bs-toggle="pill" data-bs-target="#preferences" type="button" role="tab">
+                    <i class="bi bi-sliders"></i> Preferences
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="privacy-tab" data-bs-toggle="pill" data-bs-target="#privacy" type="button" role="tab">
+                    <i class="bi bi-shield-check"></i> Privacy
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="tab-content" id="settingsTabContent">
+            <!-- Profile Tab -->
+            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                <div class="settings-section">
+                    <h3 class="mb-4"><i class="bi bi-person-circle"></i> Profile Information</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-4">
+                            <div class="mb-3">
+                                {% if profile.avatar %}
+                                <img src="{{ profile.avatar.url }}" alt="Avatar" class="avatar-preview">
+                                {% else %}
+                                <div class="avatar-placeholder">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Profile Picture</label>
+                                {{ profile_form.avatar }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                    {{ user_form.first_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                    {{ user_form.last_name }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.location.id_for_label }}" class="form-label">Location</label>
+                                    {{ profile_form.location }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ profile_form.birth_date.id_for_label }}" class="form-label">Birth Date</label>
+                                    {{ profile_form.birth_date }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                                {{ profile_form.bio }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Tab -->
+            <div class="tab-pane fade" id="account" role="tabpanel">
+                <div class="settings-section">
+                    <h3 class="mb-4"><i class="bi bi-person-gear"></i> Account Settings</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                            <small class="text-muted">Username cannot be changed</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email Address</label>
+                            {{ user_form.email }}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Account Status:</strong> 
+                        {% if user.is_staff %}
+                            <span class="badge bg-warning">Staff Member</span>
+                        {% else %}
+                            <span class="badge bg-success">Regular User</span>
+                        {% endif %}
+                        • Joined {{ user.date_joined|date:"F d, Y" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Tab -->
+            <div class="tab-pane fade" id="preferences" role="tabpanel">
+                <div class="settings-section">
+                    <h3 class="mb-4"><i class="bi bi-sliders"></i> Display Preferences</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.recipes_per_page.id_for_label }}" class="form-label">Recipes per Page</label>
+                            {{ profile_form.recipes_per_page }}
+                            <small class="text-muted">Number of recipes to show per page (6-24)</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ profile_form.theme_preference.id_for_label }}" class="form-label">Theme Preference</label>
+                            {{ profile_form.theme_preference }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Tab -->
+            <div class="tab-pane fade" id="privacy" role="tabpanel">
+                <div class="settings-section">
+                    <h3 class="mb-4"><i class="bi bi-shield-check"></i> Privacy & Notifications</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                {{ profile_form.email_notifications }}
+                                <label class="form-check-label" for="{{ profile_form.email_notifications.id_for_label }}">
+                                    Email Notifications
+                                </label>
+                                <small class="d-block text-muted">Receive email notifications for comments and ratings</small>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ profile_form.show_email }}
+                                <label class="form-check-label" for="{{ profile_form.show_email.id_for_label }}">
+                                    Show Email on Profile
+                                </label>
+                                <small class="d-block text-muted">Make your email address visible to other users</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Privacy Notice:</strong> Your recipes and comments are public. Only approved recipes are visible to other users.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+                <i class="bi bi-check-circle"></i> Save Settings
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg px-5 ms-3">
+                <i class="bi bi-x-circle"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Avatar preview
+    const avatarInput = document.querySelector('input[type="file"][name="avatar"]');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.querySelector('.avatar-preview, .avatar-placeholder');
+                    if (preview) {
+                        if (preview.classList.contains('avatar-placeholder')) {
+                            preview.outerHTML = `<img src="${e.target.result}" alt="Avatar Preview" class="avatar-preview">`;
+                        } else {
+                            preview.src = e.target.result;
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

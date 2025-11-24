@@ -1,0 +1,196 @@
+{% extends 'recipes/base.html' %}
+
+{% block title %}Submit Recipe - Recipe Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: rgba(255,255,255,0.05);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .form-control, .form-select {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(255,255,255,0.15);
+        border-color: #667eea;
+        color: white;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+    
+    .input-group-text {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.8);
+    }
+    
+    .upload-area {
+        transition: all 0.3s ease;
+    }
+    
+    .upload-area:hover {
+        background: rgba(255,255,255,0.1) !important;
+        border-color: rgba(255,255,255,0.5) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Hero Section -->
+    <div class="glass-effect rounded-4 p-4 mb-4 text-center">
+        <h1 class="text-white mb-3 floating-animation">👨🍳 Share Your Culinary Masterpiece</h1>
+        <p class="text-white-50 lead">Create and share your amazing recipe with our community!</p>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="glass-effect rounded-4 p-4">
+                    <form method="post" enctype="multipart/form-data" class="recipe-form">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Info Section -->
+                        <div class="form-section mb-4">
+                            <h4 class="text-white mb-3">📝 Basic Information</h4>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label text-white-50">🍽️ Recipe Title *</label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                    <div class="text-danger mt-1">{{ form.title.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label text-white-50">🏷️ Category *</label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                    <div class="text-danger mt-1">{{ form.category.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label text-white-50">💬 Description *</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="text-danger mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Timing & Servings Section -->
+                        <div class="form-section mb-4">
+                            <h4 class="text-white mb-3">⏱️ Timing & Servings</h4>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="{{ form.prep_time.id_for_label }}" class="form-label text-white-50">🕰️ Prep Time *</label>
+                                    <div class="input-group">
+                                        {{ form.prep_time }}
+                                        <span class="input-group-text">min</span>
+                                    </div>
+                                    {% if form.prep_time.errors %}
+                                    <div class="text-danger mt-1">{{ form.prep_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="{{ form.cook_time.id_for_label }}" class="form-label text-white-50">🔥 Cook Time *</label>
+                                    <div class="input-group">
+                                        {{ form.cook_time }}
+                                        <span class="input-group-text">min</span>
+                                    </div>
+                                    {% if form.cook_time.errors %}
+                                    <div class="text-danger mt-1">{{ form.cook_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="{{ form.servings.id_for_label }}" class="form-label text-white-50">🍽️ Servings *</label>
+                                    <div class="input-group">
+                                        {{ form.servings }}
+                                        <span class="input-group-text">people</span>
+                                    </div>
+                                    {% if form.servings.errors %}
+                                    <div class="text-danger mt-1">{{ form.servings.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ingredients Section -->
+                        <div class="form-section mb-4">
+                            <h4 class="text-white mb-3">🥗 Ingredients</h4>
+                            <label for="{{ form.ingredients.id_for_label }}" class="form-label text-white-50">List all ingredients *</label>
+                            <small class="text-white-50 d-block mb-2">List each ingredient on a new line (e.g., "2 cups flour", "1 tsp salt")</small>
+                            {{ form.ingredients }}
+                            {% if form.ingredients.errors %}
+                            <div class="text-danger mt-1">{{ form.ingredients.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Instructions Section -->
+                        <div class="form-section mb-4">
+                            <h4 class="text-white mb-3">👨🍳 Cooking Instructions</h4>
+                            <label for="{{ form.instructions.id_for_label }}" class="form-label text-white-50">Step-by-step instructions *</label>
+                            <small class="text-white-50 d-block mb-2">Provide clear, detailed cooking steps</small>
+                            {{ form.instructions }}
+                            {% if form.instructions.errors %}
+                            <div class="text-danger mt-1">{{ form.instructions.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Image Upload Section -->
+                        <div class="form-section mb-4">
+                            <h4 class="text-white mb-3">📷 Recipe Photo</h4>
+                            <label for="{{ form.image.id_for_label }}" class="form-label text-white-50">Upload an image of your dish</label>
+                            <div class="upload-area p-4 rounded-3 text-center" style="border: 2px dashed rgba(255,255,255,0.3); background: rgba(255,255,255,0.05);">
+                                {{ form.image }}
+                                <div class="mt-2">
+                                    <i class="bi bi-cloud-upload text-white-50" style="font-size: 2rem;"></i>
+                                    <p class="text-white-50 mb-0">Choose a beautiful photo of your finished dish</p>
+                                    <small class="text-white-50">Optional but recommended for better engagement</small>
+                                </div>
+                            </div>
+                            {% if form.image.errors %}
+                            <div class="text-danger mt-1">{{ form.image.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Info & Submit Section -->
+                        <div class="form-section">
+                            <div class="p-3 rounded-3 mb-4" style="background: rgba(52, 144, 220, 0.2); border-left: 4px solid #3490dc;">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-info-circle text-info me-3" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <h6 class="text-white mb-1">Review Process</h6>
+                                        <p class="text-white-50 mb-0">Your recipe will be reviewed by our team before being published to ensure quality and safety.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn btn-primary btn-lg pulse-animation" style="padding: 1rem;">
+                                    <i class="bi bi-upload"></i> Submit My Recipe
+                                </button>
+                                <a href="{% url 'home' %}" class="btn btn-outline-light">
+                                    <i class="bi bi-arrow-left"></i> Back to Home
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

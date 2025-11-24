@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: recipe-hub
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn recipe_hub.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+  - type: pserv
+    name: recipe-hub-db
+    env: postgresql
+    plan: free
+    ipAllowList: []

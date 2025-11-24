@@ -1,0 +1,175 @@
+{% extends 'recipes/base.html' %}
+
+{% block title %}My Recipes - Recipe Hub{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header Section -->
+    <div class="glass-effect rounded-4 p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="text-white mb-2">👨🍳 My Recipe Collection</h1>
+                <p class="text-white-50 mb-0">Manage and track your culinary creations</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'submit_recipe' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i> Add New Recipe
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if page_obj %}
+    <!-- Recipe Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="glass-effect rounded-3 p-3 text-center">
+                <h3 class="text-white mb-1">{{ page_obj.paginator.count }}</h3>
+                <p class="text-white-50 mb-0">Total Recipes</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-effect rounded-3 p-3 text-center">
+                <h3 class="text-white mb-1">{{ approved_count|default:0 }}</h3>
+                <p class="text-white-50 mb-0">Approved</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-effect rounded-3 p-3 text-center">
+                <h3 class="text-white mb-1">{{ pending_count|default:0 }}</h3>
+                <p class="text-white-50 mb-0">Pending</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-effect rounded-3 p-3 text-center">
+                <h3 class="text-white mb-1">{{ avg_rating|default:0|floatformat:1 }}</h3>
+                <p class="text-white-50 mb-0">Avg Rating</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Cards -->
+    <div class="row g-4">
+        {% for recipe in page_obj %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="card recipe-card h-100">
+                <div class="position-relative overflow-hidden">
+                    {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" class="card-img-top recipe-image" alt="{{ recipe.title }}">
+                    {% else %}
+                    <div class="card-img-top recipe-image d-flex align-items-center justify-content-center" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                        <i class="bi bi-image text-white" style="font-size: 3rem; opacity: 0.7;"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Status Badge -->
+                    <div class="position-absolute top-0 end-0 m-3">
+                        {% if recipe.status == 'approved' %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Approved
+                        </span>
+                        {% elif recipe.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-clock"></i> Pending Review
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-x-circle"></i> Rejected
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Category Badge -->
+                    {% if recipe.category %}
+                    <div class="position-absolute top-0 start-0 m-3">
+                        <span class="badge" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white;">
+                            {{ recipe.category.name }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title mb-3">{{ recipe.title }}</h5>
+                    <p class="card-text text-muted mb-3">{{ recipe.description|truncatewords:15 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex gap-2">
+                            <span class="badge" style="background: linear-gradient(45deg, #4ecdc4, #44a08d); color: white;">
+                                <i class="bi bi-clock"></i> {{ recipe.prep_time }}m
+                            </span>
+                            <span class="badge" style="background: linear-gradient(45deg, #f093fb, #f5576c); color: white;">
+                                <i class="bi bi-fire"></i> {{ recipe.cook_time }}m
+                            </span>
+                        </div>
+                        
+                        {% if recipe.average_rating > 0 %}
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= recipe.average_rating|floatformat:0 %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ms-1">({{ recipe.average_rating|floatformat:1 }})</small>
+                        </div>
+                        {% else %}
+                        <small class="text-muted">No ratings yet</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> View Recipe
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light border-0">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar"></i> Created {{ recipe.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="alert alert-info">
+        <h4>No recipes yet</h4>
+        <p>You haven't submitted any recipes. <a href="{% url 'submit_recipe' %}">Submit your first recipe!</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

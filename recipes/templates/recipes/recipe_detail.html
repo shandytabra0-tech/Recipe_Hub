@@ -1,0 +1,714 @@
+{% extends 'recipes/base.html' %}
+
+{% block title %}{{ recipe.title }} - Recipe Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .recipe-hero {
+        position: relative;
+        height: 60vh;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+    
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+    
+    .custom-breadcrumb {
+        background: none;
+        padding: 0;
+    }
+    
+    .custom-breadcrumb a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+    }
+    
+    .custom-breadcrumb .active {
+        color: white;
+    }
+    
+    .recipe-meta {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .category-tag, .difficulty-tag {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .category-tag {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        color: white;
+    }
+    
+    .difficulty-tag {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        color: white;
+    }
+    
+    .recipe-title {
+        font-size: 4rem;
+        font-weight: 800;
+        margin: 1rem 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .recipe-stats {
+        display: flex;
+        gap: 2rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.1);
+        padding: 0.8rem 1.2rem;
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stat-item i {
+        font-size: 1.2rem;
+    }
+    
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: #ffd700;
+    }
+    
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255,255,255,0.1);
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+        width: fit-content;
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .author-details {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .author-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .publish-date {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+    }
+    
+    .recipe-content {
+        margin-top: -100px;
+        position: relative;
+        z-index: 3;
+    }
+    
+    .content-section {
+        background: rgba(255,255,255,0.95);
+        border-radius: 25px;
+        padding: 3rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .ingredient-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .ingredient-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        border-left: 4px solid #667eea;
+    }
+    
+    .ingredient-item:hover {
+        transform: translateX(10px);
+        background: #e9ecef;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .ingredient-check {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+    }
+    
+    .instruction-list {
+        counter-reset: step-counter;
+    }
+    
+    .instruction-step {
+        counter-increment: step-counter;
+        display: flex;
+        gap: 1.5rem;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .instruction-step:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+    
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .step-number::before {
+        content: counter(step-counter);
+    }
+    
+    .step-content {
+        flex: 1;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #333;
+    }
+    
+    .sidebar-section {
+        background: rgba(255,255,255,0.95);
+        border-radius: 25px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .rating-star {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .rating-star:hover {
+        transform: scale(1.3);
+        text-shadow: 0 0 10px #ffd700;
+    }
+    
+    @media (max-width: 768px) {
+        .recipe-title {
+            font-size: 2.5rem;
+        }
+        
+        .recipe-stats {
+            gap: 1rem;
+        }
+        
+        .content-section {
+            padding: 2rem 1.5rem;
+        }
+        
+        .recipe-content {
+            margin-top: -50px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Recipe Hero Section -->
+<div class="recipe-hero">
+    <div class="hero-overlay"></div>
+    {% if recipe.image %}
+    <div class="hero-bg" style="background-image: url('{{ recipe.image.url }}');"></div>
+    {% else %}
+    <div class="hero-bg" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+    {% endif %}
+    
+    <div class="container">
+        <div class="hero-content">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb custom-breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">🏠 Home</a></li>
+                    <li class="breadcrumb-item active">{{ recipe.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="recipe-header">
+                <div class="recipe-meta mb-3">
+                    {% if recipe.category %}
+                    <span class="category-tag">{{ recipe.category.name }}</span>
+                    {% endif %}
+                    <span class="difficulty-tag">Medium</span>
+                </div>
+                
+                <h1 class="recipe-title">{{ recipe.title }}</h1>
+                
+                <div class="recipe-stats">
+                    <div class="stat-item">
+                        <i class="bi bi-clock"></i>
+                        <span>{{ recipe.prep_time|add:recipe.cook_time }} min total</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-people"></i>
+                        <span>{{ recipe.servings }} servings</span>
+                    </div>
+                    {% if recipe.average_rating > 0 %}
+                    <div class="stat-item">
+                        <div class="rating-display">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= recipe.average_rating|floatformat:0 %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span>({{ recipe.average_rating|floatformat:1 }})</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="author-info">
+                    <div class="author-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="author-details">
+                        <a href="{% url 'user_profile' recipe.author.username %}" class="text-decoration-none">
+                            <span class="author-name">{{ recipe.author.username }}</span>
+                        </a>
+                        <span class="publish-date">{{ recipe.created_at|date:"F d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container recipe-content">
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Description Section -->
+            <div class="content-section">
+                <h2 class="section-title">
+                    📝 About This Recipe
+                </h2>
+                <p class="lead">{{ recipe.description }}</p>
+            </div>
+
+            <!-- Ingredients Section -->
+            <div class="content-section">
+                <h2 class="section-title">
+                    🥗 Ingredients
+                    <span class="badge bg-primary">{{ recipe.ingredients.splitlines|length }} items</span>
+                </h2>
+                <div class="ingredient-grid">
+                    {% for line in recipe.ingredients.splitlines %}
+                        {% if line.strip %}
+                        <div class="ingredient-item">
+                            <div class="ingredient-check">
+                                <i class="bi bi-check"></i>
+                            </div>
+                            <span>{{ line }}</span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="content-section">
+                <h2 class="section-title">
+                    👨🍳 Instructions
+                    <span class="badge bg-success">{{ recipe.instructions.splitlines|length }} steps</span>
+                </h2>
+                <div class="instruction-list">
+                    {% for line in recipe.instructions.splitlines %}
+                        {% if line.strip %}
+                        <div class="instruction-step">
+                            <div class="step-number"></div>
+                            <div class="step-content">{{ line }}</div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+            {% if recipe.image %}
+            <div class="position-relative mb-4">
+                <img src="{{ recipe.image.url }}" class="img-fluid rounded-4 shadow-lg" alt="{{ recipe.title }}" style="width: 100%; height: 400px; object-fit: cover;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4" style="background: linear-gradient(45deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));"></div>
+            </div>
+            {% endif %}
+
+            <!-- Recipe Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="glass-effect rounded-3 p-3 text-center h-100 recipe-stat-card">
+                        <div class="mb-2">
+                            <i class="bi bi-clock" style="font-size: 2.5rem; background: linear-gradient(45deg, #4ecdc4, #44a08d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Prep Time</h6>
+                        <p class="text-white mb-0 fw-bold fs-5 animate-number">{{ recipe.prep_time }}</p>
+                        <small class="text-white-50">minutes</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-effect rounded-3 p-3 text-center h-100 recipe-stat-card">
+                        <div class="mb-2">
+                            <i class="bi bi-fire" style="font-size: 2.5rem; background: linear-gradient(45deg, #f093fb, #f5576c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Cook Time</h6>
+                        <p class="text-white mb-0 fw-bold fs-5 animate-number">{{ recipe.cook_time }}</p>
+                        <small class="text-white-50">minutes</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-effect rounded-3 p-3 text-center h-100 recipe-stat-card">
+                        <div class="mb-2">
+                            <i class="bi bi-people" style="font-size: 2.5rem; background: linear-gradient(45deg, #a8edea, #fed6e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Servings</h6>
+                        <p class="text-white mb-0 fw-bold fs-5 animate-number">{{ recipe.servings }}</p>
+                        <small class="text-white-50">people</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-effect rounded-3 p-3 text-center h-100 recipe-stat-card">
+                        <div class="mb-2">
+                            <i class="bi bi-award" style="font-size: 2.5rem; background: linear-gradient(45deg, #ffecd2, #fcb69f); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Difficulty</h6>
+                        <p class="text-white mb-0 fw-bold fs-6">Medium</p>
+                        <small class="text-white-50">level</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="glass-effect rounded-3 p-4 mb-4">
+                <h3 class="text-white mb-3">📝 Description</h3>
+                <p class="text-white-50 lead">{{ recipe.description }}</p>
+            </div>
+
+            <!-- Ingredients -->
+            <div class="glass-effect rounded-3 p-4 mb-4">
+                <h3 class="text-white mb-3">🥗 Ingredients</h3>
+                <div class="ingredients-list">
+                    {% for line in recipe.ingredients.splitlines %}
+                        {% if line.strip %}
+                        <div class="ingredient-item d-flex align-items-center mb-2 p-2 rounded" style="background: rgba(255,255,255,0.1);">
+                            <i class="bi bi-check-circle text-success me-3"></i>
+                            <span class="text-white">{{ line }}</span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="glass-effect rounded-3 p-4 mb-4">
+                <h3 class="text-white mb-3">👨‍🍳 Instructions</h3>
+                <div class="instructions-list">
+                    {% for line in recipe.instructions.splitlines %}
+                        {% if line.strip %}
+                        <div class="instruction-step mb-3 p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #667eea;">
+                            <div class="d-flex align-items-start">
+                                <span class="badge bg-primary me-3 mt-1">{{ forloop.counter }}</span>
+                                <div class="text-white">{{ line }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Rating Section -->
+            {% if user.is_authenticated %}
+            <div class="sidebar-section">
+                <h4 class="mb-4">⭐ Rate This Recipe</h4>
+                {% if user_rating %}
+                <div class="current-rating mb-4">
+                    <p class="text-muted mb-2">Your rating:</p>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= user_rating.rating %}
+                                <i class="bi bi-star-fill" style="color: #ffd700;"></i>
+                            {% else %}
+                                <i class="bi bi-star" style="color: #ddd;"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="rating-input text-center mb-4">
+                        {% for i in "12345" %}
+                        <i class="bi bi-star rating-star" data-rating="{{ forloop.counter }}" style="font-size: 2.5rem; color: #ffd700; margin: 0 0.2rem;"></i>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" id="rating-value" value="{% if user_rating %}{{ user_rating.rating }}{% else %}3{% endif %}">
+                    <button type="submit" name="rating" class="btn btn-primary w-100">
+                        <i class="bi bi-heart-fill"></i> Submit Rating
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Comments Section -->
+            <div class="sidebar-section">
+                <h4 class="mb-4">💬 Comments ({{ comments.count }})</h4>
+                
+                {% if user.is_authenticated %}
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="4" placeholder="Share your cooking experience..." required></textarea>
+                    </div>
+                    <button type="submit" name="comment" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-chat-dots"></i> Add Comment
+                    </button>
+                </form>
+                {% else %}
+                <div class="text-center p-4 bg-light rounded mb-4">
+                    <p class="text-muted mb-3">Join the conversation!</p>
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login to Comment</a>
+                </div>
+                {% endif %}
+
+                <div class="comments-list" style="max-height: 500px; overflow-y: auto;">
+                    {% for comment in comments %}
+                    <div class="comment-item p-3 mb-3 bg-light rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="comment-avatar me-3">
+                                <i class="bi bi-person-circle" style="font-size: 2rem; color: #667eea;"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ comment.author.username }}</h6>
+                                <small class="text-muted">{{ comment.created_at|date:"M d, Y" }}</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">{{ comment.content }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="text-center p-5">
+                        <i class="bi bi-chat-square-dots" style="font-size: 3rem; color: #ddd;"></i>
+                        <p class="text-muted mt-3">No comments yet. Be the first!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Rating Section -->
+            {% if user.is_authenticated %}
+            <div class="glass-effect rounded-3 p-4 mb-4">
+                <h5 class="text-white mb-3">⭐ Rate this Recipe</h5>
+                {% if user_rating %}
+                <div class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.1);">
+                    <p class="text-white-50 mb-2">Your current rating:</p>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= user_rating.rating %}
+                                <i class="bi bi-star-fill"></i>
+                            {% else %}
+                                <i class="bi bi-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_rating" class="form-label text-white-50">Rating (1-5 stars)</label>
+                        <div class="rating-input d-flex justify-content-center gap-2 mb-3">
+                            {% for i in "12345" %}
+                            <i class="bi bi-star rating-star" data-rating="{{ forloop.counter }}" style="font-size: 2rem; cursor: pointer; color: #ffd700;"></i>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="rating" id="rating-value" value="{% if user_rating %}{{ user_rating.rating }}{% else %}3{% endif %}">
+                    </div>
+                    <button type="submit" name="rating" class="btn btn-primary w-100 pulse-animation">
+                        <i class="bi bi-heart"></i> Submit Rating
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Comments Section -->
+            <div class="glass-effect rounded-3 p-4">
+                <h5 class="text-white mb-3">💬 Comments ({{ comments.count }})</h5>
+                
+                {% if user.is_authenticated %}
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Share your thoughts about this recipe..." style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;" required></textarea>
+                    </div>
+                    <button type="submit" name="comment" class="btn btn-primary w-100">
+                        <i class="bi bi-chat-dots"></i> Add Comment
+                    </button>
+                </form>
+                {% else %}
+                <div class="text-center p-3 rounded mb-4" style="background: rgba(255,255,255,0.1);">
+                    <p class="text-white-50 mb-2">Join the conversation!</p>
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Login to Comment</a>
+                </div>
+                {% endif %}
+
+                <div class="comments-list" style="max-height: 400px; overflow-y: auto;">
+                    {% for comment in comments %}
+                    <div class="comment-item mb-3 p-3 rounded" style="background: rgba(255,255,255,0.1);">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="bi bi-person-fill text-white" style="font-size: 0.8rem;"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-0">{{ comment.author.username }}</h6>
+                                <small class="text-white-50">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        <p class="text-white-50 mb-0">{{ comment.content }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="text-center p-4">
+                        <i class="bi bi-chat-square-dots" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
+                        <p class="text-white-50 mt-2">No comments yet. Be the first to share your thoughts!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Interactive rating stars
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const ratingInput = document.getElementById('rating-value');
+    
+    if (ratingStars.length > 0) {
+        // Set initial state
+        const currentRating = parseInt(ratingInput.value);
+        updateStars(currentRating);
+        
+        ratingStars.forEach((star, index) => {
+            star.addEventListener('mouseenter', function() {
+                updateStars(index + 1);
+            });
+            
+            star.addEventListener('click', function() {
+                const rating = index + 1;
+                ratingInput.value = rating;
+                updateStars(rating);
+            });
+        });
+        
+        // Reset on mouse leave
+        document.querySelector('.rating-input').addEventListener('mouseleave', function() {
+            updateStars(parseInt(ratingInput.value));
+        });
+    }
+    
+    function updateStars(rating) {
+        ratingStars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.remove('bi-star');
+                star.classList.add('bi-star-fill');
+            } else {
+                star.classList.remove('bi-star-fill');
+                star.classList.add('bi-star');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
